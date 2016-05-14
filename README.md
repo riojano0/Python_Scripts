@@ -1,4 +1,4 @@
 # Python_Scripts
-Retomando sitorios
+Retomando pruebas en repositorios
 
-Ponemos nuevas lineaszzzz
+Ponemos nuevas lineas
