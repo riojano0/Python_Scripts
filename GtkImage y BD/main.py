@@ -90,4 +90,5 @@ if __name__ == "__main__":
 
 	window = MainWindow()
 	window.show_all()
+	window.connect("delete-event", Gtk.main_quit)
 	Gtk.main()
