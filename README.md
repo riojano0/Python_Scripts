@@ -9,6 +9,6 @@ Un ejemplo que muestra como traer imagenes de la base de datos para mostrarlos e
 de Gtk, ademas de mostrar como al selecionar un item del treeview refrescar la imagen
 
 ## Varios
-Ejercicios varios resueltos en Python
+Ejercicios varios resueltos en Python    
 **Annograms**: Devolver anagramas de una palabra dada por parametros en base a un diccionario en un archivo .lst
 **Toushands with commas**: Devolver un string de un parametro que es un integer con el numero con comas cada 3 digitos.
