@@ -1,4 +1,9 @@
-from tkinter import Tk, Canvas
+try:
+    #Python 2
+    from Tkinter import Tk, Canvas
+except:
+    #Python 3
+    from tkinter import Tk, Canvas
 from PIL import Image, ImageTk
 
 

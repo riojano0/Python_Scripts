@@ -1,16 +1,20 @@
-from tkinter import Tk, OptionMenu, Frame,Button, Label, LabelFrame, StringVar, Entry, E, END, W
-from converclasses.C_long import *
-from converclasses.C_Almac import *
+try:
+	#Python 2
+	from Tkinter import Tk, OptionMenu, Frame,Button, Label, LabelFrame, StringVar, Entry, E, END, W
+except:
+	#Python 3
+	from tkinter import Tk, OptionMenu, Frame,Button, Label, LabelFrame, StringVar, Entry, E, END, W
+from converclasses.c_long import *
+from converclasses.c_almac import *
 from PIL import Image, ImageTk
-from resources.Login import intro
-import resources.ResourceStrings as R
+from resources.login import intro
+import resources.resourceString as R
 
 class Main():
 
 	def __init__(self, master):
 
 		#La intro se puede apagar al final, cumple solo una funcion vistosa
-		
 
 		#Iniciacion propia de la ventan y sus configuraciones
 		self.master=master
