@@ -10,5 +10,5 @@ de Gtk, ademas de mostrar como al selecionar un item del treeview refrescar la i
 
 ## Varios
 Ejercicios varios resueltos en Python
-> Annograms: Devolver anagramas de una palabra dada por parametros en base a un diccionario en un archivo .lst
-> Toushands with commas: Devolver un string de un parametro que es un integer con el numero con comas cada 3 digitos.
+**Annograms**: Devolver anagramas de una palabra dada por parametros en base a un diccionario en un archivo .lst
+**Toushands with commas**: Devolver un string de un parametro que es un integer con el numero con comas cada 3 digitos.
