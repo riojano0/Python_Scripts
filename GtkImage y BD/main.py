@@ -8,6 +8,7 @@ from gi.repository import Gtk, GdkPixbuf
 class MainWindow(Gtk.Window):
 	def __init__(self):
 		Gtk.Window.__init__(self, title="ImageRefresh from database")
+		self.set_position(Gtk.WindowPosition.CENTER)
 		self.set_border_width(0)
 		self.set_default_size(700, 600)
 		self.set_resizable(False)
@@ -15,13 +16,13 @@ class MainWindow(Gtk.Window):
 		self.person_store = Gtk.ListStore(int, str)
 		self.imgPerson = Gtk.Image()
 
-		GridPrincipal = Gtk.Grid()
-		GridPrincipal.set_column_homogeneous = False
+		GridMain = Gtk.Grid()
+		GridMain.set_column_homogeneous = False
 
-		GridPrincipal.attach(self.personviews(), 0, 0, 1, 1)
-		GridPrincipal.attach(self.showimage(), 1, 0, 2, 1)
+		GridMain.attach(self.personviews(), 0, 0, 1, 1)
+		GridMain.attach(self.showimage(), 1, 0, 2, 1)
 
-		self.add(GridPrincipal)
+		self.add(GridMain)
 
 	def personviews(self):
 		self.connection = databasehelper.connection()
