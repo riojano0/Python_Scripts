@@ -7,3 +7,4 @@ GtkImage y BD/test.py
 *.pyc
 GtkImage y BD/.idea/modules.xml
 GtkImage y BD/.idea/misc.xml
+/__pycache__/

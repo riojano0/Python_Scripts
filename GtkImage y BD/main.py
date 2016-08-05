@@ -1,9 +1,11 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-import databasehelper
+from databasehelper import Database
 import gi
+
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GdkPixbuf
+
 
 class MainWindow(Gtk.Window):
 	def __init__(self):
@@ -13,6 +15,9 @@ class MainWindow(Gtk.Window):
 		self.set_default_size(700, 600)
 		self.set_resizable(False)
 
+		self.database = Database()
+		self.session = self.database.getSession()
+		self.characters = self.database.getQueryCharacter()
 		self.person_store = Gtk.ListStore(int, str)
 		self.imgPerson = Gtk.Image()
 
@@ -25,39 +30,39 @@ class MainWindow(Gtk.Window):
 		self.add(GridMain)
 
 	def personviews(self):
-		self.connection = databasehelper.connection()
-		cursor = self.connection.execute("Select * from person")
-		rows = cursor.fetchall()
-		for row in rows:
-			self.person_store.append([row[0], row[1]])
+		try:
+			rows = self.characters.all()
+			for row in rows:
+				self.person_store.append([row.id_person, row.name])
 
-		person_treeview = Gtk.TreeView(self.person_store)
-		person_treeview.set_hexpand(True)
-		person_treeview.set_vexpand(True)
+			person_treeview = Gtk.TreeView(self.person_store)
+			person_treeview.set_hexpand(True)
+			person_treeview.set_vexpand(True)
 
-		for i, col_title in enumerate(["ID", "Name"]):
-			# Render means how to draw the data
-			renderer = Gtk.CellRendererText()
+			for i, col_title in enumerate(["ID", "Name"]):
+				# Render means how to draw the data
+				renderer = Gtk.CellRendererText()
+				# create columns
+				column = Gtk.TreeViewColumn(col_title, renderer, text=i)
+				# Order By
+				column.set_sort_column_id(i)
+				# add column to treeview
+				person_treeview.append_column(column)
 
-			# create columns
-			column = Gtk.TreeViewColumn(col_title, renderer, text=i)
-			# Order By
-			column.set_sort_column_id(i)
-			# add column to treeview
-			person_treeview.append_column(column)
+			selected_row = person_treeview.get_selection()
+			selected_row.connect("changed", self.item_selected_person)
 
-		selected_row = person_treeview.get_selection()
-		selected_row.connect("changed", self.item_selected_person)
+			frame = Gtk.Frame()
+			frame.add(person_treeview)
+			return frame
 
-		self.connection.close()
-		frame=Gtk.Frame()
-		frame.add(person_treeview)
-		return frame
+		except:
+			self.session.close()
 
 	def showimage(self):
 		frame = Gtk.Frame()
-		# Se carga una imagen Default en el caso que no encuentre o tenga problemas con la base de datos
-		imagenPixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size('img/default.jpg', 150, 150)
+		# Load default image
+		imagenPixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale('img/default.jpg', 150, 150, False)
 		self.imgPerson.set_from_pixbuf(imagenPixbuf)
 		label = Gtk.Label("Person Selected")
 		box = Gtk.VBox()
@@ -70,25 +75,29 @@ class MainWindow(Gtk.Window):
 
 	def item_selected_person(self, selection):
 		model, row = selection.get_selected()
-		ID = str(model[row][0])
-		self.connection = databasehelper.connection()
-		self.imageCatch = self.connection.execute("Select picture from person where id_person=" + ID)
-		image = self.imageCatch.fetchone()[0]
+		id = str(model[row][0])
 
-		loader = GdkPixbuf.PixbufLoader()
-		loader.set_size(200, 150)
-		loader.write(image)
-		loader.close()
-		pixbuf = loader.get_pixbuf()
+		try:
+			pictureCath = self.database.getCharacterImage(id)
+			image = pictureCath.picture
 
-		self.imgPerson.set_from_pixbuf(pixbuf)
+			loader = GdkPixbuf.PixbufLoader()
+			loader.set_size(200, 150)
+			loader.write(image)
+			loader.close()
+			pixbuf = loader.get_pixbuf()
 
-		self.connection.close()
+			# Load image from database
+			self.imgPerson.set_from_pixbuf(pixbuf)
+
+		except:
+			self.session.close()
+
+		finally:
+			self.session.close()
 
 
 if __name__ == "__main__":
-	databasehelper.start()
-
 	window = MainWindow()
 	window.show_all()
 	window.connect("delete-event", Gtk.main_quit)

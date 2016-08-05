@@ -1,50 +1,73 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
-import sqlite3
-import io
-from PIL import Image
+from examples import starks
+from sqlalchemy import Column, Integer, Binary, String
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy_utils import database_exists
+from sqlalchemy.orm import sessionmaker
 
-# Query para generar la tabla
-PersonTable = ("CREATE TABLE person (id_person INTEGER PRIMARY KEY NOT NULL, Name TEXT, picture BLOB)")
-
-# Imagenes para el ejemplo, es necesario hacer esta conversion para que luego permita guardarlo como BLOB
-path = ["img/john.jpg", "img/sansa.jpg", "img/brandon.jpg"]
-imgs = []
-for p in path:
-	i = Image.open(p)
-	stream = io.BytesIO()
-	i.save(stream, format="JPEG")
-	imgs.append(stream.getvalue())
-
-# Lista de Ejemplo
-People = [(1, "John", imgs[0]), (2, "Sansa", imgs[1]), (3, "Brandon", imgs[2])]
+engine = None
+Base = declarative_base()
 
 
-# Funcion usada para conectarse con la base de datos del otro lado
-def connection():
-	conn = sqlite3.connect("ImageExample.db")
-	db = conn.cursor()
-	return db
+# The character table
+class Character(Base):
+	__tablename__ = "character"
+	id_person = Column(Integer, primary_key=True)
+	name = Column(String(20))
+	picture = Column(Binary)
 
-def start():
-	conn = sqlite3.connect("ImageExample.db")
-	db = conn.cursor()
+	def __repr__(self):
+		return "<Stark Name:{}>".format(self.name)
 
-	if os.path.isfile("ImageExample.db"):
-		# This lines is only for reload the tables and examples
-		#Estas lineas resetean los ejemplos/tablas
 
-		print ("The Database Create, drop tables and reload examples")
-		db.execute("DROP TABLE IF EXISTS person")
-		db.execute(PersonTable)
+class Database():
+	def __init__(self):
 
-		for person in People:
-			db.execute("INSERT INTO person VALUES(?,?,?)", (person[0], person[1], sqlite3.Binary(person[2])))
-			conn.commit()
+		self.existsStark = False
 
-		conn.close()
+		self.startDatabase()
+
+		self.Session = sessionmaker(bind=self.engine)
+		self.session = self.Session()
+
+		if not self.existsStark:
+			self.insertData()
+
+	# Start the creation (or not) of the database
+	def startDatabase(self):
+
+		if not database_exists('sqlite:///ImageExample.db'):
+			print 'Creating database'
+			self.engine = create_engine('sqlite:///ImageExample.db')
+			print 'Create Tables'
+			Base.metadata.create_all(self.engine)
+			print 'Insert examples'
+		else:
+			self.existsStark = True
+			self.engine = create_engine('sqlite:///ImageExample.db')
+			print 'Not Creating database'
+
+	# Insert the examples in the table
+	def insertData(self):
+
+		for character in starks:
+			person = Character(id_person=character[0], name=character[1], picture=character[2])
+			self.session.add(person)
+
+		self.session.commit()
+
+	def getSession(self):
+		return self.session
+
+	def getQueryCharacter(self):
+		return self.session.query(Character)
+
+	def getCharacterImage(self, id):
+		return self.getQueryCharacter().filter(Character.id_person == id).all()[0]
+
 
 if __name__ == "__main__":
-	start()
-
+	Database()
+	print "Database activities"
